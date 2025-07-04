@@ -11,6 +11,7 @@ const SoundWave = ({ soundUrl }: { soundUrl: string }) => {
   const containerRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
+    setReady(false);
     if (!containerRef.current) return;
     // Create WaveSurfer instance
     const ws = WaveSurfer.create({
