@@ -1,9 +1,8 @@
 "use client";
 
-import React, { useState } from "react";
+import React from "react";
 import {
   Layout,
-  Menu,
   Button,
   Select,
   Input,
@@ -12,10 +11,15 @@ import {
   Row,
   Col,
   Divider,
+  Space,
+  Tag,
 } from "antd";
+import Link from "next/link";
+import Sider from "antd/es/layout/Sider";
+import { Content } from "antd/es/layout/layout";
+import SoundWave from "@/components/SoundWave";
 // import dynamic from "next/dynamic";
 
-const { Sider } = Layout;
 const { Option } = Select;
 const { TextArea } = Input;
 const { Title, Text } = Typography;
@@ -25,124 +29,123 @@ const { Title, Text } = Typography;
 // });
 
 const alerts = [
-  {
-    id: "#00013211",
-    type: "CNC Machine",
-    severity: "Moderate",
-    date: "2021-06-18 20:10:04",
-  },
-  {
-    id: "#00013211",
-    type: "Milling Machine",
-    severity: "Moderate",
-    date: "2021-06-18 20:10:04",
-  },
-  {
-    id: "#00013211",
-    type: "Milling Machine",
-    severity: "Moderate",
-    date: "2021-06-18 20:10:04",
-  },
+  { id: "#00013211", machine: "CNC Machine", selected: true },
+  { id: "#00013211", machine: "CNC Machine" },
+  { id: "#00013211", machine: "CNC Machine" },
+  { id: "#00013211", machine: "Miling Machine" },
+  { id: "#00013211", machine: "Miling Machine" },
+  { id: "#00013211", machine: "Miling Machine" },
 ];
 
 const MainContent = () => {
-  const [selectedAlert, setSelectedAlert] = useState(alerts[0]);
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  const [_, setAction] = useState();
-  const [comment, setComment] = useState("");
+  // const [selectedAlert, setSelectedAlert] = useState(alerts[0]);
+  // // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  // const [_, setAction] = useState();
+  // const [comment, setComment] = useState("");
 
   return (
-    <Layout>
-      <Sider width={300} theme="light">
-        <Menu
-          mode="inline"
-          defaultSelectedKeys={["0"]}
-          items={[
-            {
-              key: "group",
-              type: "group",
-              label: "6 Alerts",
-              children: alerts.map((alert, index) => ({
-                key: `${index}`,
-                label: (
-                  <div onClick={() => setSelectedAlert(alert)}>
-                    <Text strong>ID {alert.id}</Text>
-                    <br />
-                    <Text type="secondary">Unknown Anomaly</Text>
-                    <br />
-                    <Text>{alert.type}</Text>
-                    <br />
-                    <Text type="secondary">Detected at {alert.date}</Text>
-                  </div>
-                ),
-              })),
-            },
-          ]}
-        />
-      </Sider>
-
+    <Layout style={{ background: "#fff", margin: 30, padding: 10 }}>
+      {/* Dropdown */}
+      <Select
+        defaultValue="CNC Machine"
+        style={{ width: 200, marginBottom: 16 }}
+      >
+        <Option value="CNC Machine">CNC Machine</Option>
+        <Option value="Miling Machine">Miling Machine</Option>
+      </Select>
       <Layout>
-        <Card>
-          <Text>Detected at {selectedAlert.date}</Text>
+        {/* Sidebar */}
+        <Sider width={280} style={{ background: "#fff", padding: 16 }}>
+          <Space direction="vertical" size="middle" style={{ width: "100%" }}>
+            <Button type="link">Back</Button>
+            <Text strong>6 Alerts</Text>
+            <Tag color="blue">2 New</Tag>
+
+            {alerts.map((alert, i) => (
+              <Card
+                key={i}
+                size="small"
+                variant="outlined"
+                style={{
+                  borderColor: alert.selected ? "#2F80ED" : "#d9d9d9",
+                }}
+              >
+                <Space direction="vertical" size={0} style={{ width: "100%" }}>
+                  <Space
+                    style={{ justifyContent: "space-between", width: "100%" }}
+                  >
+                    <Text type="secondary">ID {alert.id}</Text>
+                    <Tag color="orange">Moderate</Tag>
+                  </Space>
+                  <Text strong>Unknown Anomally</Text>
+                  <Text type="secondary">Detected at 2021-06-18 20:10:04</Text>
+                  <Link href={""}>{alert.machine}</Link>
+                </Space>
+              </Card>
+            ))}
+          </Space>
+        </Sider>
+
+        {/* Main Content */}
+        <Content style={{ padding: 24, background: "#fff" }}>
+          {/* Header */}
+          <Title level={5} style={{ marginBottom: 4 }}>
+            Alert ID #00013211
+          </Title>
+          <Text type="secondary">Detected at 2021-04-22 20:10:04</Text>
+
           <Divider />
-          <Row gutter={16}>
+
+          {/* Spectrogram Section */}
+          <Row gutter={24}>
             <Col span={12}>
               <Title level={5}>Anomaly Machine Output</Title>
-              {/* <SpectrogramChart type="anomaly" /> */}
+              <SoundWave soundUrl="https://purfirhhszyvaxklrniq.supabase.co/storage/v1/object/public/wavs//2.wav" />
             </Col>
             <Col span={12}>
               <Title level={5}>Normal Machine Output</Title>
-              {/* <SpectrogramChart type="normal" /> */}
+              <SoundWave soundUrl="https://purfirhhszyvaxklrniq.supabase.co/storage/v1/object/public/wavs//1.wav" />
             </Col>
           </Row>
 
           <Divider />
 
-          <Row gutter={16}>
-            <Col span={8}>
-              <Text strong>Equipment</Text>
-              <br />
-              <Text>{selectedAlert.type}</Text>
-            </Col>
-            <Col span={8}>
-              <Text strong>Suspected Reason</Text>
-              <br />
-              <Select defaultValue="Unknown Anomaly" style={{ width: "100%" }}>
-                <Option value="Unknown Anomaly">Unknown Anomaly</Option>
-                <Option value="Overload">Overload</Option>
-                <Option value="Component Fault">Component Fault</Option>
+          {/* Form Section */}
+          <Space direction="vertical" size="large" style={{ width: "100%" }}>
+            <Text>
+              <strong>Equipment:</strong> CNC Machine
+            </Text>
+
+            <div>
+              <Text>Suspected Reason</Text>
+              <Select defaultValue="Unknown Anomally" style={{ width: "100%" }}>
+                <Option value="Unknown Anomally">Unknown Anomally</Option>
+                <Option value="Bearing Fault">Bearing Fault</Option>
+                <Option value="Loose Part">Loose Part</Option>
               </Select>
-            </Col>
-            <Col span={8}>
-              <Text strong>Action Required</Text>
-              <br />
-              <Select
-                placeholder="Select Action"
-                style={{ width: "100%" }}
-                onChange={setAction}
-              >
-                <Option value="Check Machine">Check Machine</Option>
-                <Option value="Log and Monitor">Log and Monitor</Option>
+            </div>
+
+            <div>
+              <Text>Action Required</Text>
+              <Select placeholder="Select Action" style={{ width: "100%" }}>
+                <Option value="Investigate">Investigate</Option>
+                <Option value="Ignore">Ignore</Option>
                 <Option value="Schedule Maintenance">
                   Schedule Maintenance
                 </Option>
               </Select>
-            </Col>
-          </Row>
+            </div>
 
-          <Divider />
+            <div>
+              <Text>Comments</Text>
+              <TextArea rows={4} placeholder="Write your notes here..." />
+            </div>
 
-          <Text strong>Comments</Text>
-          <TextArea
-            rows={4}
-            onChange={(e) => setComment(e.target.value)}
-            value={comment}
-          />
-
-          <Divider />
-
-          <Button type="primary">Update</Button>
-        </Card>
+            <Button type="primary" block>
+              UPDATE
+            </Button>
+          </Space>
+        </Content>
       </Layout>
     </Layout>
   );
