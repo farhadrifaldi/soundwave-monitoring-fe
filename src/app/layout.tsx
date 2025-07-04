@@ -32,7 +32,7 @@ export default function RootLayout({
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
         <AntdRegistry>
-          <Layout style={{ minHeight: "100vh" }}>
+          <Layout style={{ minHeight: "100vh", background: "#f7f7f7" }}>
             <Layout>
               <HeaderBar />
               {children}
