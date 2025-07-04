@@ -48,6 +48,12 @@ const MainContent = () => {
   const [alerts, setAlerts] = useState<AnomalyAlert[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [suspectedReason, setSuspectedReason] = useState<string>("");
+  const [actionRequired, setActionRequired] = useState<string>("");
+  const [comment, setComment] = useState<string>("");
+  const [updateLoading, setUpdateLoading] = useState(false);
+  const [updateError, setUpdateError] = useState<string | null>(null);
+  const [updateSuccess, setUpdateSuccess] = useState(false);
 
   useEffect(() => {
     const fetchAlerts = async () => {
@@ -55,9 +61,8 @@ const MainContent = () => {
         const res = await fetch("/api/anomalies");
         if (!res.ok) throw new Error("Failed to fetch alerts");
         const data = await res.json();
-        // Adjust this if your API response shape is different
         setAlerts(data || []);
-        setSelectedAnomaly(data[0] || null); // Set first alert as selected by default
+        setSelectedAnomaly(data[0] || null);
       } catch (err: unknown) {
         if (err instanceof Error) {
           setError(err.message);
@@ -70,6 +75,42 @@ const MainContent = () => {
     };
     fetchAlerts();
   }, []);
+
+  // Keep form fields in sync with selectedAnomaly
+  useEffect(() => {
+    setSuspectedReason(selectedAnomaly?.suspectedReason || "");
+    setActionRequired(selectedAnomaly?.actionRequired || "");
+    setComment(selectedAnomaly?.comment || "");
+  }, [selectedAnomaly]);
+
+  const handleUpdate = async () => {
+    if (!selectedAnomaly) return;
+    setUpdateLoading(true);
+    setUpdateError(null);
+    setUpdateSuccess(false);
+    try {
+      const res = await fetch("/api/anomalies/update", {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          id: selectedAnomaly.id,
+          suspectedReason,
+          actionRequired,
+          comment,
+        }),
+      });
+      if (!res.ok) throw new Error("Failed to update anomaly");
+      setUpdateSuccess(true);
+    } catch (err: unknown) {
+      if (err instanceof Error) {
+        setUpdateError(err.message);
+      } else {
+        setUpdateError("Unknown error");
+      }
+    } finally {
+      setUpdateLoading(false);
+    }
+  };
 
   return (
     <Layout style={{ background: "#fff", margin: 30, padding: 10 }}>
@@ -188,7 +229,11 @@ const MainContent = () => {
 
             <div>
               <Text>Suspected Reason</Text>
-              <Select defaultValue="Unknown Anomally" style={{ width: "100%" }}>
+              <Select
+                value={suspectedReason}
+                onChange={setSuspectedReason}
+                style={{ width: "100%" }}
+              >
                 <Option value="Unknown Anomally">Unknown Anomally</Option>
                 <Option value="Bearing Fault">Bearing Fault</Option>
                 <Option value="Loose Part">Loose Part</Option>
@@ -197,21 +242,38 @@ const MainContent = () => {
 
             <div>
               <Text>Action Required</Text>
-              <Select placeholder="Select Action" style={{ width: "100%" }}>
+              <Select
+                value={actionRequired}
+                onChange={setActionRequired}
+                placeholder="Select Action"
+                style={{ width: "100%" }}
+              >
                 <Option value="Investigate">Investigate</Option>
                 <Option value="Ignore">Ignore</Option>
-                <Option value="Schedule Maintenance">
-                  Schedule Maintenance
-                </Option>
+                <Option value="Schedule Maintenance">Schedule Maintenance</Option>
               </Select>
             </div>
 
             <div>
               <Text>Comments</Text>
-              <TextArea rows={4} placeholder="Write your notes here..." />
+              <TextArea
+                rows={4}
+                placeholder="Write your notes here..."
+                value={comment}
+                onChange={(e) => setComment(e.target.value)}
+              />
             </div>
 
-            <Button type="primary" block>
+            {updateError && <Text type="danger">{updateError}</Text>}
+            {updateSuccess && <Text type="success">Update successful!</Text>}
+
+            <Button
+              type="primary"
+              block
+              loading={updateLoading}
+              onClick={handleUpdate}
+              disabled={!selectedAnomaly}
+            >
               UPDATE
             </Button>
           </Space>
