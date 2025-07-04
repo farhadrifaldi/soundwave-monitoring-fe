@@ -1,103 +1,151 @@
-import Image from "next/image";
+"use client";
 
-export default function Home() {
+import React, { useState } from "react";
+import {
+  Layout,
+  Menu,
+  Button,
+  Select,
+  Input,
+  Typography,
+  Card,
+  Row,
+  Col,
+  Divider,
+} from "antd";
+// import dynamic from "next/dynamic";
+
+const { Sider } = Layout;
+const { Option } = Select;
+const { TextArea } = Input;
+const { Title, Text } = Typography;
+
+// const SpectrogramChart = dynamic(() => import("./SpectrogramChart"), {
+//   ssr: false,
+// });
+
+const alerts = [
+  {
+    id: "#00013211",
+    type: "CNC Machine",
+    severity: "Moderate",
+    date: "2021-06-18 20:10:04",
+  },
+  {
+    id: "#00013211",
+    type: "Milling Machine",
+    severity: "Moderate",
+    date: "2021-06-18 20:10:04",
+  },
+  {
+    id: "#00013211",
+    type: "Milling Machine",
+    severity: "Moderate",
+    date: "2021-06-18 20:10:04",
+  },
+];
+
+const MainContent = () => {
+  const [selectedAlert, setSelectedAlert] = useState(alerts[0]);
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  const [_, setAction] = useState();
+  const [comment, setComment] = useState("");
+
   return (
-    <div className="grid grid-rows-[20px_1fr_20px] items-center justify-items-center min-h-screen p-8 pb-20 gap-16 sm:p-20 font-[family-name:var(--font-geist-sans)]">
-      <main className="flex flex-col gap-[32px] row-start-2 items-center sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={180}
-          height={38}
-          priority
+    <Layout>
+      <Sider width={300} theme="light">
+        <Menu
+          mode="inline"
+          defaultSelectedKeys={["0"]}
+          items={[
+            {
+              key: "group",
+              type: "group",
+              label: "6 Alerts",
+              children: alerts.map((alert, index) => ({
+                key: `${index}`,
+                label: (
+                  <div onClick={() => setSelectedAlert(alert)}>
+                    <Text strong>ID {alert.id}</Text>
+                    <br />
+                    <Text type="secondary">Unknown Anomaly</Text>
+                    <br />
+                    <Text>{alert.type}</Text>
+                    <br />
+                    <Text type="secondary">Detected at {alert.date}</Text>
+                  </div>
+                ),
+              })),
+            },
+          ]}
         />
-        <ol className="list-inside list-decimal text-sm/6 text-center sm:text-left font-[family-name:var(--font-geist-mono)]">
-          <li className="mb-2 tracking-[-.01em]">
-            Get started by editing{" "}
-            <code className="bg-black/[.05] dark:bg-white/[.06] px-1 py-0.5 rounded font-[family-name:var(--font-geist-mono)] font-semibold">
-              src/app/page.tsx
-            </code>
-            .
-          </li>
-          <li className="tracking-[-.01em]">
-            Save and see your changes instantly.
-          </li>
-        </ol>
+      </Sider>
 
-        <div className="flex gap-4 items-center flex-col sm:flex-row">
-          <a
-            className="rounded-full border border-solid border-transparent transition-colors flex items-center justify-center bg-foreground text-background gap-2 hover:bg-[#383838] dark:hover:bg-[#ccc] font-medium text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 sm:w-auto"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={20}
-              height={20}
-            />
-            Deploy now
-          </a>
-          <a
-            className="rounded-full border border-solid border-black/[.08] dark:border-white/[.145] transition-colors flex items-center justify-center hover:bg-[#f2f2f2] dark:hover:bg-[#1a1a1a] hover:border-transparent font-medium text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 w-full sm:w-auto md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Read our docs
-          </a>
-        </div>
-      </main>
-      <footer className="row-start-3 flex gap-[24px] flex-wrap items-center justify-center">
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/file.svg"
-            alt="File icon"
-            width={16}
-            height={16}
+      <Layout>
+        <Card>
+          <Text>Detected at {selectedAlert.date}</Text>
+          <Divider />
+          <Row gutter={16}>
+            <Col span={12}>
+              <Title level={5}>Anomaly Machine Output</Title>
+              {/* <SpectrogramChart type="anomaly" /> */}
+            </Col>
+            <Col span={12}>
+              <Title level={5}>Normal Machine Output</Title>
+              {/* <SpectrogramChart type="normal" /> */}
+            </Col>
+          </Row>
+
+          <Divider />
+
+          <Row gutter={16}>
+            <Col span={8}>
+              <Text strong>Equipment</Text>
+              <br />
+              <Text>{selectedAlert.type}</Text>
+            </Col>
+            <Col span={8}>
+              <Text strong>Suspected Reason</Text>
+              <br />
+              <Select defaultValue="Unknown Anomaly" style={{ width: "100%" }}>
+                <Option value="Unknown Anomaly">Unknown Anomaly</Option>
+                <Option value="Overload">Overload</Option>
+                <Option value="Component Fault">Component Fault</Option>
+              </Select>
+            </Col>
+            <Col span={8}>
+              <Text strong>Action Required</Text>
+              <br />
+              <Select
+                placeholder="Select Action"
+                style={{ width: "100%" }}
+                onChange={setAction}
+              >
+                <Option value="Check Machine">Check Machine</Option>
+                <Option value="Log and Monitor">Log and Monitor</Option>
+                <Option value="Schedule Maintenance">
+                  Schedule Maintenance
+                </Option>
+              </Select>
+            </Col>
+          </Row>
+
+          <Divider />
+
+          <Text strong>Comments</Text>
+          <TextArea
+            rows={4}
+            onChange={(e) => setComment(e.target.value)}
+            value={comment}
           />
-          Learn
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/window.svg"
-            alt="Window icon"
-            width={16}
-            height={16}
-          />
-          Examples
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/globe.svg"
-            alt="Globe icon"
-            width={16}
-            height={16}
-          />
-          Go to nextjs.org →
-        </a>
-      </footer>
-    </div>
+
+          <Divider />
+
+          <Button type="primary">Update</Button>
+        </Card>
+      </Layout>
+    </Layout>
   );
-}
+};
+
+export default MainContent;
