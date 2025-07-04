@@ -13,12 +13,14 @@ import {
   Divider,
   Space,
   Tag,
+  Flex,
 } from "antd";
 import Link from "next/link";
 import Sider from "antd/es/layout/Sider";
 import { Content } from "antd/es/layout/layout";
 import SoundWave from "@/components/SoundWave";
-// import dynamic from "next/dynamic";
+import dayjs from "dayjs";
+import { IoMdArrowDropleft } from "react-icons/io";
 
 const { Option } = Select;
 const { TextArea } = Input;
@@ -39,6 +41,10 @@ type AnomalyAlert = {
   comment?: string;
   isNew: boolean;
 };
+
+function dateFormat(dateString: string): string {
+  return dayjs(dateString).format("YYYY-MM-DD HH:mm:ss");
+}
 
 const MainContent = () => {
   const [selectedAnomaly, setSelectedAnomaly] = useState<AnomalyAlert | null>(
@@ -101,6 +107,11 @@ const MainContent = () => {
       });
       if (!res.ok) throw new Error("Failed to update anomaly");
       setUpdateSuccess(true);
+      setTimeout(() => {
+        setUpdateSuccess(false);
+      }, 5000); // Reset success message after 5 seconds
+      const updatedData = await res.json();
+      updateAnomalyData(updatedData);
     } catch (err: unknown) {
       if (err instanceof Error) {
         setUpdateError(err.message);
@@ -112,87 +123,118 @@ const MainContent = () => {
     }
   };
 
+  const updateAnomalyData = (updatedData: AnomalyAlert) => {
+    const curDatas = Object.assign({}, selectedAnomaly, updatedData);
+    setSelectedAnomaly(curDatas);
+  };
+
   return (
-    <Layout style={{ background: "#fff", margin: 30, padding: 10 }}>
-      {/* Dropdown */}
-      <Select
-        defaultValue="CNC Machine"
-        style={{ width: 200, marginBottom: 16 }}
-        onChange={(value) => setFilterMachine(value)}
-      >
-        <Option value="CNC Machine">CNC Machine</Option>
-        <Option value="Milling Machine">Milling Machine</Option>
-      </Select>
+    <Layout
+      className="border border-gray-400"
+      style={{ background: "#fff", margin: 30 }}
+    >
+      <div className="border-b border-gray-400 p-4">
+        {/* Dropdown */}
+        <Select
+          defaultValue="CNC Machine"
+          style={{ width: 200 }}
+          onChange={(value) => setFilterMachine(value)}
+        >
+          <Option value="CNC Machine">CNC Machine</Option>
+          <Option value="Milling Machine">Milling Machine</Option>
+        </Select>
+      </div>
       <Layout>
         {/* Sidebar */}
-        <Sider width={280} style={{ background: "#fff", padding: 16 }}>
-          <Space direction="vertical" size="middle" style={{ width: "100%" }}>
-            <Button type="link">Back</Button>
-            <Text strong>{alerts.length} Alerts</Text>
-            <Tag color="blue">{alerts.filter((a) => a.isNew).length} New</Tag>
+        <Sider
+          width={280}
+          className="border-r border-gray-400"
+          style={{ background: "#fff" }}
+        >
+          <Space direction="vertical" size="small" style={{ width: "100%" }}>
+            <Button
+              size="large"
+              type="link"
+              style={{ color: "black", display: "flex", alignItems: "center" }}
+            >
+              <IoMdArrowDropleft size={24} />
+              Back
+            </Button>
+            <hr className=" border-gray-400" />
+            <Flex className="!px-5 !mt-4">
+              <Text strong className="mr-4">
+                {alerts.length} Alerts
+              </Text>
+              <Tag color="#3478FC" className="!rounded-lg">
+                {alerts.filter((a) => a.isNew).length} New
+              </Tag>
+            </Flex>
 
-            {loading ? (
-              <Text>Loading...</Text>
-            ) : error ? (
-              <Text type="danger">{error}</Text>
-            ) : (
-              alerts
-                .filter((a) => {
-                  if (!filterMachine) return true; // Show all if no filter
-                  return a.machine === filterMachine;
-                })
-                .map((alert, i) => (
-                  <Card
-                    onClick={() => setSelectedAnomaly(alert)}
-                    key={i}
-                    size="small"
-                    variant="outlined"
-                    style={{
-                      borderColor:
-                        selectedAnomaly?.id === alert.id
-                          ? "#2F80ED"
-                          : "#d9d9d9",
-                    }}
-                  >
-                    <Space
-                      direction="vertical"
-                      size={0}
-                      style={{ width: "100%" }}
+            <Space className="p-4" direction="vertical" size="middle" style={{ width: "100%" }}>
+              {loading ? (
+                <Text>Loading...</Text>
+              ) : error ? (
+                <Text type="danger">{error}</Text>
+              ) : (
+                alerts
+                  .filter((a) => {
+                    if (!filterMachine) return true; // Show all if no filter
+                    return a.machine === filterMachine;
+                  })
+                  .map((alert, i) => (
+                    <Card
+                      onClick={() => setSelectedAnomaly(alert)}
+                      key={i}
+                      size="small"
+                      variant="outlined"
+                      style={{
+                        borderColor:
+                          selectedAnomaly?.id === alert.id
+                            ? "#2F80ED"
+                            : "#d9d9d9",
+                      }}
                     >
                       <Space
-                        style={{
-                          justifyContent: "space-between",
-                          width: "100%",
-                        }}
+                        direction="vertical"
+                        size={0}
+                        style={{ width: "100%" }}
                       >
-                        <Text type="secondary">
-                          ID #0000{alert.id || alert.id}
-                        </Text>
-                        <Tag
-                          color={
-                            alert.anomaly === "Mild"
-                              ? "green"
-                              : alert.anomaly === "Moderate"
-                              ? "orange"
-                              : "red"
-                          }
+                        <Space
+                          style={{
+                            justifyContent: "space-between",
+                            width: "100%",
+                          }}
                         >
-                          {alert.anomaly}
-                        </Tag>
+                          <Text type="secondary">
+                            ID #0000{alert.id || alert.id}
+                          </Text>
+                          <Tag
+                            color={
+                              alert.anomaly === "Mild"
+                                ? "green"
+                                : alert.anomaly === "Moderate"
+                                ? "orange"
+                                : "red"
+                            }
+                          >
+                            {alert.anomaly}
+                          </Tag>
+                        </Space>
+                        <Text strong>
+                          {alert.suspectedReason || "Unknown Anomally"}
+                        </Text>
+                        <Text type="secondary">
+                          Detected at{" "}
+                          {alert.timestamp ? dateFormat(alert.timestamp) : "-"}
+                        </Text>
+                        <Link href={""}>
+                          {alert.machine || "Unknown Machine"}
+                        </Link>
                       </Space>
-                      <Text strong>
-                        {alert.suspectedReason || "Unknown Anomally"}
-                      </Text>
-                      <Text type="secondary">
-                        Detected at {alert.timestamp || "-"}
-                      </Text>
-                      <Link href={""}>
-                        {alert.machine || "Unknown Machine"}
-                      </Link>
-                    </Space>
-                  </Card>
-                ))
-            )}
+                    </Card>
+                  ))
+              )}
+            </Space>
           </Space>
         </Sider>
 
@@ -202,9 +244,14 @@ const MainContent = () => {
           <Title level={5} style={{ marginBottom: 4 }}>
             Alert ID #0000{selectedAnomaly?.id}
           </Title>
-          <Text type="secondary">Detected at {selectedAnomaly?.timestamp}</Text>
+          <Text type="secondary">
+            Detected at{" "}
+            {selectedAnomaly?.timestamp
+              ? dateFormat(selectedAnomaly.timestamp)
+              : "-"}
+          </Text>
 
-          <Divider />
+          <Divider className="border border-gray-500" />
 
           {/* Spectrogram Section */}
           <Row gutter={24}>
@@ -250,7 +297,9 @@ const MainContent = () => {
               >
                 <Option value="Investigate">Investigate</Option>
                 <Option value="Ignore">Ignore</Option>
-                <Option value="Schedule Maintenance">Schedule Maintenance</Option>
+                <Option value="Schedule Maintenance">
+                  Schedule Maintenance
+                </Option>
               </Select>
             </div>
 
