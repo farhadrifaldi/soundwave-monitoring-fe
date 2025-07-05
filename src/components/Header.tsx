@@ -18,14 +18,14 @@ const AppHeader = () => {
       }}
     >
       {/* Left side: Logo and Menu */}
-      <div style={{ display: "flex", alignItems: "center" }}>
+      <div style={{ display: "flex", alignItems: "center"}}>
         <div style={{ fontWeight: "bold", fontSize: 18, marginRight: 32 }}>
           <span style={{ fontFamily: "monospace" }}>GROUNDUP.AI</span>
         </div>
         <Menu
           mode="horizontal"
           defaultSelectedKeys={["alerts"]}
-          style={{ borderBottom: "none" }}
+          style={{ borderBottom: "none", width: "400px" }}
           items={[
             { key: "dashboard", label: "DASHBOARD" },
             { key: "alerts", label: "ALERTS" },
