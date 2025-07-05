@@ -204,6 +204,7 @@ const MainContent = () => {
                             ? "#2F80ED"
                             : "#d9d9d9",
                       }}
+                      className="cursor-pointer hover:border-blue-500 transition-colors duration-200"
                     >
                       <Space
                         direction="vertical"
