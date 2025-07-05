@@ -46,6 +46,15 @@ function dateFormat(dateString: string): string {
   return dayjs(dateString).format("YYYY-MM-DD HH:mm:ss");
 }
 
+// Merge two arrays of objects by id, replacing items with the same id
+function mergeById<T extends { id: number }>(arr1: T[], arr2: T[]): T[] {
+  const map = new Map<number, T>();
+  arr1.forEach(item => map.set(item.id, item));
+  arr2.forEach(item => map.set(item.id, item)); // arr2 overwrites arr1 if id matches
+  return Array.from(map.values());
+}
+
+
 const MainContent = () => {
   const [selectedAnomaly, setSelectedAnomaly] = useState<AnomalyAlert | null>(
     null
@@ -124,8 +133,10 @@ const MainContent = () => {
   };
 
   const updateAnomalyData = (updatedData: AnomalyAlert) => {
-    const curDatas = Object.assign({}, selectedAnomaly, updatedData);
-    setSelectedAnomaly(curDatas);
+    console.log("Updating anomaly data:", updatedData);
+    const curDatas = mergeById(alerts, [updatedData]);
+    console.log("Current selected anomaly after update:", curDatas);
+    setAlerts(curDatas);
   };
 
   return (
